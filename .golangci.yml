@@ -1,0 +1,43 @@
+version: "2"
+linters:
+  enable:
+    - gocritic
+    - gosec
+    - prealloc
+  settings:
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - style
+    gosec:
+      excludes:
+        - G101
+        - G304
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - errcheck
+          - gosec
+        path: _test\.go
+      - linters:
+          - gosec
+        text: "G117"
+    paths:
+      - docs
+      - internal/sqlc
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

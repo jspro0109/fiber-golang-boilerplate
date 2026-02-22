@@ -1,0 +1,17 @@
+.git
+.gitignore
+.env
+.env.example
+.vscode
+.idea
+.air.toml
+.golangci.yml
+.dockerignore
+.github/
+tmp/
+vendor/
+uploads/
+*.exe
+*.test
+*.out
+README.md

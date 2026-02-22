@@ -1,0 +1,40 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with "go test -c"
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# Air
+tmp/
+
+# IDE specific files
+.vscode
+.idea
+
+# Environment
+.env
+
+# Project build
+main
+
+# OS X generated file
+.DS_Store
+
+# Uploads
+uploads/
+
+# Swagger generated docs (committed for clone-and-run)
+# Regenerate with: make swagger
