@@ -33,9 +33,9 @@ func (m *mockUserRepo) GetByID(_ context.Context, id int64) (*sqlc.User, error) 
 	return u, nil
 }
 
-func (m *mockUserRepo) GetByEmail(_ context.Context, email string) (*sqlc.User, error) {
+func (m *mockUserRepo) GetByEmail(_ context.Context, addr string) (*sqlc.User, error) {
 	for _, u := range m.users {
-		if u.Email == email {
+		if u.Email == addr {
 			return u, nil
 		}
 	}
@@ -52,7 +52,7 @@ func (m *mockUserRepo) GetByGoogleID(_ context.Context, googleID string) (*sqlc.
 }
 
 func (m *mockUserRepo) List(_ context.Context, limit, offset int32) ([]sqlc.User, error) {
-	var all []sqlc.User
+	all := make([]sqlc.User, 0, len(m.users))
 	for _, u := range m.users {
 		all = append(all, *u)
 	}
@@ -309,7 +309,7 @@ func (m *mockFileRepo) Restore(_ context.Context, id int64) (*sqlc.File, error) 
 }
 
 func (m *mockFileRepo) AdminList(_ context.Context, limit, offset int32) ([]sqlc.File, error) {
-	var all []sqlc.File
+	all := make([]sqlc.File, 0, len(m.files))
 	for _, f := range m.files {
 		all = append(all, *f)
 	}
@@ -368,54 +368,6 @@ func (m *mockPasswordResetRepo) Delete(_ context.Context, token string) error {
 }
 
 func (m *mockPasswordResetRepo) DeleteByUserID(_ context.Context, userID int64) error {
-	for k, v := range m.tokens {
-		if v.UserID == userID {
-			delete(m.tokens, k)
-		}
-	}
-	return nil
-}
-
-// ---------------------------------------------------------------------------
-// mockEmailVerificationRepo
-// ---------------------------------------------------------------------------
-
-type mockEmailVerificationRepo struct {
-	tokens map[string]*sqlc.EmailVerificationToken
-	nextID int64
-}
-
-func newMockEmailVerificationRepo() *mockEmailVerificationRepo {
-	return &mockEmailVerificationRepo{tokens: make(map[string]*sqlc.EmailVerificationToken), nextID: 1}
-}
-
-func (m *mockEmailVerificationRepo) Create(_ context.Context, params sqlc.CreateEmailVerificationTokenParams) (*sqlc.EmailVerificationToken, error) {
-	t := &sqlc.EmailVerificationToken{
-		ID:        m.nextID,
-		UserID:    params.UserID,
-		Token:     params.Token,
-		ExpiresAt: params.ExpiresAt,
-		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
-	}
-	m.tokens[params.Token] = t
-	m.nextID++
-	return t, nil
-}
-
-func (m *mockEmailVerificationRepo) GetByToken(_ context.Context, token string) (*sqlc.EmailVerificationToken, error) {
-	t, ok := m.tokens[token]
-	if !ok {
-		return nil, apperror.ErrNotFound
-	}
-	return t, nil
-}
-
-func (m *mockEmailVerificationRepo) Delete(_ context.Context, token string) error {
-	delete(m.tokens, token)
-	return nil
-}
-
-func (m *mockEmailVerificationRepo) DeleteByUserID(_ context.Context, userID int64) error {
 	for k, v := range m.tokens {
 		if v.UserID == userID {
 			delete(m.tokens, k)

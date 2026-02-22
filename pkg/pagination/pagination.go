@@ -34,8 +34,8 @@ func LimitOffset(page, perPage int) (limit, offset int32) {
 	if perPage > maxVal {
 		perPage = maxVal
 	}
-	limit = int32(perPage)
-	offset = int32(off)
+	limit = int32(perPage)  //nolint:gosec // perPage is clamped to MaxPerPage (100) above
+	offset = int32(off)    //nolint:gosec // off is clamped to maxVal (math.MaxInt32) above
 	return limit, offset
 }
 
