@@ -1,10 +1,25 @@
 package pagination
 
+import "math"
+
 const (
 	DefaultPage    = 1
 	DefaultPerPage = 10
 	MaxPerPage     = 100
 )
+
+// clampInt32 safely converts int to int32 with clamping.
+// This is the single place where int→int32 conversion is suppressed,
+// keeping gosec G115 enabled globally to catch unsafe casts elsewhere.
+func clampInt32(v int) int32 {
+	if v > math.MaxInt32 {
+		return math.MaxInt32
+	}
+	if v < math.MinInt32 {
+		return math.MinInt32
+	}
+	return int32(v) // #nosec G115 -- bounds checked above
+}
 
 // Normalize clamps page and perPage to valid ranges.
 func Normalize(page, perPage int) (normalizedPage, normalizedPerPage int) {
@@ -21,11 +36,10 @@ func Normalize(page, perPage int) (normalizedPage, normalizedPerPage int) {
 }
 
 // LimitOffset returns safe int32 limit and offset for SQL queries.
-// After Normalize: perPage in [1, 100] and page >= 1, both always fit int32.
 func LimitOffset(page, perPage int) (limit, offset int32) {
 	page, perPage = Normalize(page, perPage)
 	off := (page - 1) * perPage
-	return int32(perPage), int32(off)
+	return clampInt32(perPage), clampInt32(off)
 }
 
 // TotalPages calculates total number of pages.
