@@ -15,7 +15,7 @@ func newTestApp(handler fiber.Handler) *fiber.App {
 	return app
 }
 
-func doRequest(t *testing.T, app *fiber.App) (*http.Response, map[string]any) {
+func doRequest(t *testing.T, app *fiber.App) (resp *http.Response, parsed map[string]any) {
 	t.Helper()
 	req, _ := http.NewRequest("GET", "/test", http.NoBody)
 	resp, err := app.Test(req)
@@ -23,13 +23,12 @@ func doRequest(t *testing.T, app *fiber.App) (*http.Response, map[string]any) {
 		t.Fatalf("app.Test failed: %v", err)
 	}
 	body, _ := io.ReadAll(resp.Body)
-	var result map[string]any
 	if len(body) > 0 {
-		if err := json.Unmarshal(body, &result); err != nil {
+		if err := json.Unmarshal(body, &parsed); err != nil {
 			t.Fatalf("unmarshal failed: %v", err)
 		}
 	}
-	return resp, result
+	return resp, parsed
 }
 
 func TestSuccess(t *testing.T) {
@@ -79,9 +78,7 @@ func TestCreated(t *testing.T) {
 }
 
 func TestNoContent(t *testing.T) {
-	app := newTestApp(func(c fiber.Ctx) error {
-		return NoContent(c)
-	})
+	app := newTestApp(NoContent)
 
 	resp, _ := doRequest(t, app)
 	if resp.StatusCode != 204 {
